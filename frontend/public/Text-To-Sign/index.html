@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text to ISL Gestures Translator</title>
+  <style>
+    :root {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --text-primary: #e4e4e4;
+      --text-secondary: #0f3460;
+      --accent-green: #16c79a;
+      --accent-light-green: #3bffa2;
+      --border-color: #3f3f3f;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.6;
+    }
+
+    h1 {
+      color: var(--accent-green);
+      margin-bottom: 30px;
+      font-weight: 300;
+      text-align: center;
+    }
+
+    #input-text, #pdf-upload {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: border-color 0.3s ease;
+    }
+
+    #input-text:focus, #pdf-upload:focus {
+      outline: none;
+      border-color: var(--accent-green);
+    }
+
+    #gestures-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .gesture-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      background-color: var(--bg-secondary);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+
+    .gesture-box {
+      width: 120px;
+      height: 140px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-primary);
+      transition: transform 0.2s ease;
+    }
+
+    .gesture-box:hover {
+      transform: scale(1.05);
+    }
+
+    .gesture-box img {
+      max-width: 80%;
+      max-height: 80%;
+      border-radius: 5px;
+      object-fit: contain;
+    }
+
+    .gesture-label {
+      margin-top: 10px;
+      font-size: 16px;
+      color: var(--accent-light-green);
+      font-weight: 500;
+    }
+
+    .no-gesture {
+      color: #777;
+      font-style: italic;
+    }
+
+    .line-separator {
+      width: 100%;
+      height: 2px;
+      background-color: var(--border-color);
+      margin: 15px 0;
+    }
+
+    #voice-button {
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: var(--accent-green);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #voice-button:hover {
+      background-color: var(--accent-light-green);
+      transform: translateY(-2px);
+    }
+
+    #voice-button.listening {
+      background-color: #e74c3c;
+    }
+
+    @media (max-width: 600px) {
+      .gesture-line {
+        gap: 10px;
+      }
+      .gesture-box {
+        width: 90px;
+        height: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>ISL Gesture Translator</h1>
+  <input type="text" id="input-text" placeholder="Enter text or upload PDF..." oninput="showGestures()">
+  <input type="file" id="pdf-upload" accept="application/pdf" onchange="handlePdfUpload()">
+  <button id="voice-button" onclick="startVoiceInput()">🎤 Voice Input</button>
+  <div id="gestures-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+  <script>
+    // Mapping of characters to their corresponding ISL gesture images
+    const islMapping = {
+      'A': 'data/A.jpg',
+      'B': 'data/B.jpg',
+      'C': 'data/C.jpg',
+      'D': 'data/D.jpg',
+      'E': 'data/E.jpg',
+      'F': 'data/F.jpg',
+      'G': 'data/G.jpg',
+      'H': 'data/H.jpg',
+      'I': 'data/I.jpg',
+      'J': 'data/J.jpg',
+      'K': 'data/K.jpg',
+      'L': 'data/L.jpg',
+      'M': 'data/M.jpg',
+      'N': 'data/N.jpg',
+      'O': 'data/O.jpg',
+      'P': 'data/P.jpg',
+      'Q': 'data/Q.jpg',
+      'R': 'data/R.jpg',
+      'S': 'data/S.jpg',
+      'T': 'data/T.jpg',
+      'U': 'data/U.jpg',
+      'V': 'data/V.jpg',
+      'W': 'data/W.jpg',
+      'X': 'data/X.jpg',
+      'Y': 'data/Y.jpg',
+      'Z': 'data/Z.jpg',
+      '0': 'data/0.jpg',
+      '1': 'data/1.jpg',
+      '2': 'data/2.jpg',
+      '3': 'data/3.jpg',
+      '4': 'data/4.jpg',
+      '5': 'data/5.jpg',
+      '6': 'data/6.jpg',
+      '7': 'data/7.jpg',
+      '8': 'data/8.jpg',
+      '9': 'data/9.jpg',
+    };
+
+    // Function to display ISL gestures
+    function showGestures(text) {
+      const inputText = text || document.getElementById('input-text').value.toUpperCase();
+      const gesturesContainer = document.getElementById('gestures-container');
+      gesturesContainer.innerHTML = ''; // Clear previous results
+
+      // Split the text into lines (e.g., based on spaces or newlines)
+      const lines = inputText.split('\n');
+
+      lines.forEach((line, lineIndex) => {
+        const gestureLine = document.createElement('div');
+        gestureLine.className = 'gesture-line';
+
+        for (const char of line) {
+          if (char === ' ') {
+            // Add a space placeholder
+            const space = document.createElement('div');
+            space.style.width = '50px'; // Adjust space width as needed
+            gestureLine.appendChild(space);
+            continue;
+          }
+
+          const gestureBox = document.createElement('div');
+          gestureBox.className = 'gesture-box';
+
+          if (islMapping[char]) {
+            const img = document.createElement('img');
+            img.src = islMapping[char];
+            img.alt = `ISL Gesture for ${char}`;
+            gestureBox.appendChild(img);
+
+            const label = document.createElement('div');
+            label.className = 'gesture-label';
+            label.textContent = char;
+            gestureBox.appendChild(label);
+          } else {
+            gestureBox.textContent = char;
+            gestureBox.classList.add('no-gesture');
+          }
+
+          gestureLine.appendChild(gestureBox);
+        }
+
+        gesturesContainer.appendChild(gestureLine);
+
+        // Add a line separator between lines (except after the last line)
+        if (lineIndex < lines.length - 1) {
+          const separator = document.createElement('div');
+          separator.className = 'line-separator';
+          gesturesContainer.appendChild(separator);
+        }
+      });
+    }
+
+    // Function to handle PDF upload and extract text
+    async function handlePdfUpload() {
+      const file = document.getElementById('pdf-upload').files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function (event) {
+        const typedarray = new Uint8Array(event.target.result);
+
+        // Load the PDF
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+        }
+
+        // Display the extracted text as ISL gestures
+        showGestures(fullText.toUpperCase());
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Voice Input Functionality
+    let recognition;
+    const voiceButton = document.getElementById('voice-button');
+
+    function startVoiceInput() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Your browser does not support speech recognition. Please use Chrome or Edge.');
+        return;
+      }
+
+      recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+      recognition.continuous = false; // Stop after one sentence
+      recognition.interimResults = false; // Only final results
+      recognition.lang = 'en-US'; // Set language
+
+      recognition.start();
+      voiceButton.classList.add('listening');
+      voiceButton.textContent = 'Listening...';
+
+      recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('input-text').value = transcript;
+        showGestures(transcript.toUpperCase());
+      };
+
+      recognition.onend = function () {
+        voiceButton.classList.remove('listening');
+        voiceButton.textContent = '🎤 Speak';
+      };
+
+      recognition.onerror = function (event) {
+        console.error('Speech recognition error:', event.error);
+        voiceButton.classList.remove('listening');
+        voiceButton.textContent = '🎤 Speak';
+      };
+    }
+  </script>
+</body>
+</html>
