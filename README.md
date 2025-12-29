@@ -95,12 +95,21 @@ We extend our heartfelt gratitude to everyone who contributed to the development
 <div align="center" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; text-align: center;">
 
   <div>
+    <a href="https://github.com/VedantSinngh">
+      <img src="https://github.com/VedantSinngh.png" width="80" height="80" style="border-radius: 50%; border: 2px solid #ccc;">
+    </a>
+    <br>
+    <strong>Vedant Singh</strong>
+  </div>
+
+  <div>
     <a href="https://github.com/Srijansarkar17">
       <img src="https://github.com/Srijansarkar17.png" width="80" height="80" style="border-radius: 50%; border: 2px solid #ccc;">
     </a>
     <br>
     <strong>Srijan Sarkar</strong>
   </div>
+
   <div>
     <a href="https://github.com/Adityapratapsingh28">
       <img src="https://github.com/Adityapratapsingh28.png" width="80" height="80" style="border-radius: 50%; border: 2px solid #ccc;">
@@ -117,13 +126,8 @@ We extend our heartfelt gratitude to everyone who contributed to the development
     <strong>Nilesh Kanti</strong>
   </div>
 
-  <div>
-    <a href="https://github.com/VedantSinngh">
-      <img src="https://github.com/VedantSinngh.png" width="80" height="80" style="border-radius: 50%; border: 2px solid #ccc;">
-    </a>
-    <br>
-    <strong>Vedant Singh</strong>
-  </div>
+</div>
+
 
   
 
